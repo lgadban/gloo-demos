@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -x
+
+kubectl delete authconfig oidc-dex -n gloo-system
+kubectl delete vs petclinic -n gloo-system

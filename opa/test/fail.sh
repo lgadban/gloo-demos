@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -x
+
+curl -v http://localhost:8080/api/pets \
+      -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzb2xvLmlvIiwic3ViIjoidXNlciIsIm9yZyI6InNvbG8uaW8iLCJhdWQiOiJnbG9vIiwic2NvcGUiOiJ3ZWIifQ.i80dig8HTYtcWXnBys-knSF2VBe6FkSO8GJImP_Z-P7bT9i9OGlqxQFzjRfIWx17Y_7FnCrb3lxRds_IQw0ZzfaH0rpHT2LQDGQLCJk_CgJFRoOyA1znzHV8COAWyVUW9jAY0keGNFhtEzWUEB944j9Nkj_vKSUuN8aZu7Y2ReJsqzl5NltlQ_aqygVX3HT4YcXDCCfiDwrxkuZiMxxERTHkDZtmyt5Zeve3u8X447knQw5FB2o5KrAqYQF-rC60NISZFAq0w1UgG9UAcSngrKogWjDbq5WlSFHXMTVV3P50d4KQAo4kHfqP8Gkv0XsFMmcedMts6-TIomrX0xnjNg" 
