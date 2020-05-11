@@ -1,0 +1,12 @@
+spec:
+  httpGateway:
+    options:
+      httpConnectionManagerSettings:
+        tracing:
+          requestHeadersForTags:
+          - ":path"
+          - origin
+          tracePercentages:
+            overallSamplePercentage: 100
+          verbose: true
+
