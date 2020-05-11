@@ -1,0 +1,37 @@
+apiVersion: gloo.solo.io/v1
+kind: Settings
+metadata:
+  name: default
+  namespace: gloo-system
+spec:
+  discoveryNamespace: gloo-system
+  extauth:
+    extauthzServerRef:
+      name: extauth
+      namespace: gloo-system
+  gateway:
+    validation:
+      alwaysAccept: true
+      proxyValidationServerAddr: gloo:9988
+  gloo:
+    xdsBindAddr: 0.0.0.0:9977
+  kubernetesArtifactSource: {}
+  kubernetesConfigSource: {}
+  kubernetesSecretSource: {}
+  ratelimit:
+    descriptors:
+    - key: api_key
+      value: Y2I1ZDFiY2EtOWI5NC01MzlmLWYxNTItZDc2NmNjNjg5ZjNh
+      rateLimit:
+        requestsPerUnit: 1
+        unit: MINUTE
+    - key: api_key
+      value: default
+      rateLimit:
+        requestsPerUnit: 1
+        unit: MINUTE
+  ratelimitServer:
+    ratelimitServerRef:
+      name: rate-limit
+      namespace: gloo-system
+  refreshRate: 60s

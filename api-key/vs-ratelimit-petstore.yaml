@@ -1,0 +1,29 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: petstore
+  namespace: gloo-system
+spec:
+  virtualHost:
+    domains:
+    - '*'
+    options:
+      extauth:
+        configRef:
+          name: apikey-auth
+          namespace: gloo-system
+      ratelimit:
+        rateLimits:
+        - actions:
+          - requestHeaders:
+              descriptorKey: api_key
+              headerName: api-key
+    routes:
+    - matchers:
+      - prefix: /
+      routeAction:
+        single:
+          upstream:
+            name: default-petstore-8080
+            namespace: gloo-system
+
