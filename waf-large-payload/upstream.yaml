@@ -6,6 +6,8 @@ metadata:
   name: nginx
   namespace: gloo-system
 spec:
+  connectionConfig:
+    perConnectionBufferLimitBytes: 5000000
   kube:
     selector:
       app: nginx

@@ -15,7 +15,6 @@ data:
         root /data;
       }
     }
-
 ---
 apiVersion: v1
 kind: Service
@@ -50,10 +49,17 @@ spec:
         app: nginx
     spec:
       initContainers:
-        - name: create-content
+        - name: create-small-content
           image: alpine
           command: ['/bin/sh', '-c']
-          args: ['dd if=/dev/urandom of=/data/small-file.txt bs=1M count=4']
+          args: ['dd if=/dev/urandom of=/data/small-file.txt bs=1K count=8']
+          volumeMounts:
+            - name: workspace
+              mountPath: /data
+        - name: create-large-content
+          image: alpine
+          command: ['/bin/sh', '-c']
+          args: ['dd if=/dev/urandom of=/data/large-file.txt bs=1M count=3']
           volumeMounts:
             - name: workspace
               mountPath: /data
