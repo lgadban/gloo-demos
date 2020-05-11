@@ -13,6 +13,6 @@ spec:
       routeAction:
         single:
           upstream:
-              name: default-petclinic-8080
-              namespace: gloo-system
+            name: default-petclinic-8080
+            namespace: gloo-system
 

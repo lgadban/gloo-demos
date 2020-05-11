@@ -1,8 +1,9 @@
 #!/bin/sh
 
-set -x
+set -ex
 
-helm install dex stable/dex -f dex-values.yaml --namespace gloo-system
+helm install dex stable/dex -f oidc/dex-values.yaml --namespace gloo-system
 
 kubectl apply -f oidc/petclinic.yaml
 kubectl apply -f oidc/auth-config.yaml
+kubectl apply -f oidc/secret.yaml

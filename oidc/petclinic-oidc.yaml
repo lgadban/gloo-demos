@@ -12,11 +12,9 @@ spec:
       - prefix: /
       routeAction:
         single:
-          kube:
-            ref:
-              name: petclinic
-              namespace: default
-            port: 8080
+          upstream:
+            name: default-petclinic-8080
+            namespace: gloo-system
     options:
       extauth:
         configRef:
