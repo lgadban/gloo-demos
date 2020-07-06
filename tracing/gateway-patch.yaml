@@ -5,7 +5,8 @@ spec:
         tracing:
           requestHeadersForTags:
           - ":path"
-          - origin
+          - "origin"
+          - "x-test"
           tracePercentages:
             overallSamplePercentage: 100
           verbose: true
