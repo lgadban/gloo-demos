@@ -2,4 +2,4 @@
 
 set -x
 
-curl http://localhost:8080/api/pets
+curl $(glooctl proxy url)/api/pets

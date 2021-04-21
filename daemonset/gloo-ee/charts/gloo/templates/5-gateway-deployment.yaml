@@ -1,0 +1,91 @@
+{{- $image := .Values.gateway.deployment.image }}
+{{- $statsConfig := coalesce .Values.gateway.deployment.stats .Values.global.glooStats -}}
+{{- if .Values.global  }}
+{{- $image = merge .Values.gateway.deployment.image .Values.global.image }}
+{{- end }}
+{{- if .Values.gateway.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: gloo
+    gloo: gateway
+  name: gateway
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.gateway.deployment.replicas }}
+  selector:
+    matchLabels:
+      gloo: gateway
+  template:
+    metadata:
+      labels:
+        gloo: gateway
+      {{- if $statsConfig.enabled }}
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9091"
+        prometheus.io/scrape: "true"
+      {{- end}}
+    spec:
+      serviceAccountName: gateway
+      containers:
+      - image: {{template "gloo.image" $image}}
+        imagePullPolicy: {{ $image.pullPolicy }}
+        name: gateway
+{{- if .Values.gateway.deployment.resources }}
+        resources:
+{{ toYaml .Values.gateway.deployment.resources | indent 10}}
+{{- end}}
+
+{{- if .Values.gateway.validation.enabled }}
+        ports:
+          - containerPort: 8443
+            name: https
+            protocol: TCP
+{{- end}}
+
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          {{- if not .Values.gateway.deployment.floatingUserId }}
+          runAsUser: {{ printf "%.0f" (float64 .Values.gateway.deployment.runAsUser) -}}
+          {{- end }}
+          capabilities:
+            drop:
+            - ALL
+        env:
+{{- if .Values.gateway.deployment.customEnv }}
+{{ toYaml .Values.gateway.deployment.customEnv | indent 10 }}
+{{- end }}
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        {{- if $statsConfig.enabled }}
+          - name: START_STATS_SERVER
+            value: "true"
+        {{- end}}
+        {{- if .Values.gateway.validation.enabled }}
+          - name: VALIDATION_MUST_START
+            value: "true"
+        {{- end}}
+
+{{- if .Values.gateway.validation.enabled }}
+        volumeMounts:
+          - mountPath: /etc/gateway/validation-certs
+            name: validation-certs
+        readinessProbe:
+          tcpSocket:
+            port: 8443
+          initialDelaySeconds: 1
+          periodSeconds: 2
+          failureThreshold: 10
+      volumes:
+        - name: validation-certs
+          secret:
+            defaultMode: 420
+            secretName: {{ .Values.gateway.validation.secretName }}
+{{- end}}
+{{- end }}

@@ -1,0 +1,17 @@
+{{- if or .Values.grafana.defaultInstallationEnabled .Values.observability.customGrafana.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-observability-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: gloo
+    release: {{ .Release.Name }}
+data:
+  {{- if .Values.observability.customGrafana.url}}
+  GRAFANA_URL: {{.Values.observability.customGrafana.url}}
+  {{- else }}
+  GRAFANA_URL: http://glooe-grafana.{{ .Release.Namespace }}.svc.cluster.local:80
+  {{- end }}
+  DASHBOARD_JSON_TEMPLATE: {{ default (.Files.Get "dashboards/upstream-dashboard-template.tmpl") .Values.observability.upstreamDashboardTemplate | toPrettyJson }}
+{{- end }}

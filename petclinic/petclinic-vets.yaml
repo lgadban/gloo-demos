@@ -4,7 +4,6 @@ metadata:
   labels:
     app: petclinic-vets
   name: petclinic-vets
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -44,7 +43,6 @@ metadata:
   labels:
     app: petclinic-vets
   name: petclinic-vets
-  namespace: default
 spec:
   ports:
   - name: http-ui

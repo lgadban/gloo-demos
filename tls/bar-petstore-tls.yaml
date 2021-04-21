@@ -1,0 +1,24 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: bar-tls
+  namespace: gloo-system
+spec:
+  sslConfig:
+    secretRef:
+      name: selfsigned-cert-tls
+      namespace: default
+    sniDomains:
+      - bar.34.69.182.150.nip.io
+  virtualHost:
+    domains:
+    - bar.34.69.182.150.nip.io
+    routes:
+    - matchers:
+      - prefix: /
+      routeAction:
+        single:
+          upstream:
+            name: default-petstore-8080
+            namespace: gloo-system
+

@@ -1,0 +1,22 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: egress-service
+  namespace: gloo-system
+  labels:
+    gateway-type: egress
+spec:
+  virtualHost:
+    domains:
+    - '*'
+    routes:
+    - matchers:
+      - prefix: /
+      options:
+        autoHostRewrite: true
+      routeAction:
+        single:
+          upstream:
+            name: json-upstream
+            namespace: gloo-system
+

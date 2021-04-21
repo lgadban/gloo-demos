@@ -2,5 +2,5 @@
 
 set -x
 
-curl http://localhost:8080/api/pets \
+curl $(glooctl proxy url)/api/pets \
       -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb21wYW55LmNvbSIsInN1YiI6InVzZXIiLCJvcmciOiJzb2xvLmlvIiwiYXVkIjoiZ2xvbyIsInNjb3BlIjoiYXBpIn0.nA5HykKZ-XrRVbh8ORDDxveUbtecEL8JvjMAOkQwY1JyQNeDSE-STx_iTxQ_xb0DKBlW8aDvRYf01ha44ys9fVzZOrrSG65oZDOD_GypdpGWmInvDxNHVLfaMlSwHRQvzH-RdKzwP7OfUgAIo5BF_yfVaTF_lRl_4fzEg1FpsC8UuiRSHPB5Vk7Ki46Bzt2DmBvvf2Kk-2rXAbyYvw7xsz47PcvZEIXd-mlrVG2_cGW1ytCXN-Hkk9zLzceYoJuzWJkkW9hygppBn5xFGwlCzHbkQu9JBeZOigEGxQED-lpYSNJg_guq1KdjUko4TvhqYXZtX0DylyoL7-ioUnb77Q" 

@@ -1,0 +1,47 @@
+{{- if .Values.rateLimit.enabled }}
+{{- $image := .Values.redis.deployment.image }}
+{{- if .Values.global  }}
+{{- $image = merge .Values.redis.deployment.image .Values.global.image }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: gloo
+    gloo: redis
+  name: redis
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      gloo: redis
+  template:
+    metadata:
+      labels:
+        gloo: redis
+    spec:
+      containers:
+        - image: {{template  "gloo.image" $image}}
+          imagePullPolicy:  {{ $image.pullPolicy }}
+          name: redis
+          ports:
+            - containerPort: {{ .Values.redis.deployment.staticPort }}
+          env:
+            - name: MASTER
+              value: "true"
+          volumeMounts:
+            - mountPath: /redis-master-data
+              name: data
+      securityContext:
+        runAsNonRoot: true
+        runAsGroup: {{ printf "%.0f" (float64 .Values.redis.deployment.runAsGroup) }}
+        fsGroup: {{ printf "%.0f" (float64 .Values.redis.deployment.fsGroup) }}
+        {{- if not .Values.redis.deployment.floatingUserId }}
+        runAsUser: {{ printf "%.0f" (float64 .Values.redis.deployment.runAsUser) -}}
+        {{- end }}
+
+      volumes:
+        - name: data
+          emptyDir: {}
+{{- end }}

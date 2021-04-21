@@ -1,0 +1,13 @@
+apiVersion: gloo.solo.io/v1
+kind: Upstream
+metadata:
+  name: default-petclinic-8080
+  namespace: gloo-system
+spec:
+  discoveryMetadata: {}
+  kube:
+    selector:
+      app: petclinic
+    serviceName: petclinic
+    serviceNamespace: default
+    servicePort: 8080

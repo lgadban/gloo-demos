@@ -6,7 +6,7 @@ metadata:
 spec:
   virtualHost:
     domains:
-    - "*"
+    - '*'
     routes:
     - matchers:
       - prefix: /vets

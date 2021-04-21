@@ -1,0 +1,27 @@
+gloo:
+  gatewayProxies:
+    egressProxy:
+      loopBackAddress: 127.0.0.1
+      globalDownstreamMaxConnections: 10000
+      configMap:
+        data: null
+      kind:
+        deployment:
+          replicas: 1
+      podTemplate:
+        probes: false
+        httpPort: 8080
+        httpsPort: 8443
+        runAsUser: 10101
+        image:
+          pullPolicy: IfNotPresent
+          repository: gloo-ee-envoy-wrapper
+          tag: 1.5.1
+      service:
+        type: LoadBalancer
+        httpPort: 80
+        httpsPort: 443
+      gatewaySettings:
+        customHttpGateway:
+          virtualServiceSelector:
+            gateway-type: egress

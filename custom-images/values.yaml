@@ -1,0 +1,7 @@
+gloo:
+  accessLogger:
+    image:
+      registry: lgadban
+      repository: access-logger
+      tag: 1.5.x
+

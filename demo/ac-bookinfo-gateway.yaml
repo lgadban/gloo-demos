@@ -1,0 +1,23 @@
+apiVersion: enterprise.gloo.solo.io/v1
+kind: AuthConfig
+metadata:
+  name: bookinfo-oidc
+  namespace: gloo-system
+spec:
+  configs:
+  - oauth2:
+      oidcAuthorizationCode:
+        app_url: http://bookinfo.35-188-14-48.nip.io
+        callback_path: /callback
+        client_id: gloo-edge
+        client_secret_ref:
+          name: gloo-edge
+          namespace: gloo-system
+        issuer_url: http://35.239.151.59:8080/auth/realms/myrealm
+        session:
+          cookieOptions:
+            notSecure: true
+            domain: 35-188-14-48.nip.io
+        scopes:
+        - email
+

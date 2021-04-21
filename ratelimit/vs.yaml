@@ -1,0 +1,96 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"gateway.solo.io/v1","kind":"VirtualService","metadata":{"annotations":{},"name":"petstore","namespace":"gloo-system"},"spec":{"virtualHost":{"domains":["*"],"routes":[{"matchers":[{"prefix":"/"}],"routeAction":{"single":{"upstream":{"name":"default-petstore-8080","namespace":"gloo-system"}}}}]}}}
+  creationTimestamp: "2020-10-01T21:11:30Z"
+  generation: 9
+  managedFields:
+  - apiVersion: gateway.solo.io/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:kubectl.kubernetes.io/last-applied-configuration: {}
+      f:spec:
+        .: {}
+        f:virtualHost:
+          .: {}
+          f:domains: {}
+    manager: kubectl-client-side-apply
+    operation: Update
+    time: "2020-10-01T21:11:30Z"
+  - apiVersion: gateway.solo.io/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:status:
+        .: {}
+        f:reportedBy: {}
+        f:state: {}
+        f:subresourceStatuses:
+          .: {}
+          f:*v1.Proxy.gloo-system.gateway-proxy:
+            .: {}
+            f:reportedBy: {}
+            f:state: {}
+    manager: gateway
+    operation: Update
+    time: "2020-10-01T21:11:38Z"
+  - apiVersion: gateway.solo.io/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:spec:
+        f:virtualHost:
+          f:routes: {}
+    manager: kubectl-edit
+    operation: Update
+    time: "2020-10-02T18:34:08Z"
+  name: petstore
+  namespace: gloo-system
+  resourceVersion: "71938"
+  selfLink: /apis/gateway.solo.io/v1/namespaces/gloo-system/virtualservices/petstore
+  uid: f3dbe5d3-eb7f-423c-b199-9d1a5fa2708a
+spec:
+  virtualHost:
+    domains:
+    - '*'
+    routes:
+    - matchers:
+      - prefix: /search/
+      options:
+        rateLimitConfigs:
+          refs:
+          - name: rate-limit
+            namespace: gloo-system
+        transformations:
+          requestTransformation:
+            transformationTemplate:
+              extractors:
+                service:
+                  header: :path
+                  regex: ^\/(.*)\/.*\/.*$
+                  subgroup: 1
+                tenant:
+                  header: :path
+                  regex: ^\/.*\/(.*)\/.*$
+                  subgroup: 1
+              headers:
+                x-service-id:
+                  text: '{{ service }}'
+                x-tenant-id:
+                  text: '{{ tenant }}'
+              passthrough: {}
+      routeAction:
+        single:
+          upstream:
+            name: default-http-echo-search-5678
+            namespace: gloo-system
+status:
+  reportedBy: gateway
+  state: 1
+  subresourceStatuses:
+    '*v1.Proxy.gloo-system.gateway-proxy':
+      reportedBy: gloo
+      state: 1

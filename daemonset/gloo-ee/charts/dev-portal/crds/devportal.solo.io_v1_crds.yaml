@@ -1,0 +1,98 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    helm.sh/hook: crd-install
+  labels:
+    app: dev-portal
+    app.kubernetes.io/name: dev-portal
+  name: portals.devportal.solo.io
+spec:
+  group: devportal.solo.io
+  names:
+    kind: Portal
+    listKind: PortalList
+    plural: portals
+    singular: portal
+  scope: Namespaced
+  subresources:
+    status: {}
+  versions:
+  - name: v1
+    served: true
+    storage: true
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    helm.sh/hook: crd-install
+  labels:
+    app: dev-portal
+    app.kubernetes.io/name: dev-portal
+  name: apidocs.devportal.solo.io
+spec:
+  group: devportal.solo.io
+  names:
+    kind: ApiDoc
+    listKind: ApiDocList
+    plural: apidocs
+    singular: apidoc
+  scope: Namespaced
+  subresources:
+    status: {}
+  versions:
+  - name: v1
+    served: true
+    storage: true
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    helm.sh/hook: crd-install
+  labels:
+    app: dev-portal
+    app.kubernetes.io/name: dev-portal
+  name: groups.devportal.solo.io
+spec:
+  group: devportal.solo.io
+  names:
+    kind: Group
+    listKind: GroupList
+    plural: groups
+    singular: group
+  scope: Namespaced
+  subresources:
+    status: {}
+  versions:
+  - name: v1
+    served: true
+    storage: true
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    helm.sh/hook: crd-install
+  labels:
+    app: dev-portal
+    app.kubernetes.io/name: dev-portal
+  name: users.devportal.solo.io
+spec:
+  group: devportal.solo.io
+  names:
+    kind: User
+    listKind: UserList
+    plural: users
+    singular: user
+  scope: Namespaced
+  subresources:
+    status: {}
+  versions:
+  - name: v1
+    served: true
+    storage: true

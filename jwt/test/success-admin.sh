@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -x
+
+curl $(glooctl proxy url)/api/pets \
+      -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzb2xvLmlvIiwic3ViIjoiYWRtaW4iLCJvcmciOiJzb2xvLmlvIiwiYXVkIjoiZ2xvbyIsInNjb3BlIjoiYXBpIn0.EkG3p4Tq0GmGgqwM-iSRKWn_D7zNToR9SyIh2a4oEsM2WNO5qOnoI39HRmbQMapSsmkW5WIMYlQbVnNA_huUA7RdlyuBh-POFAvmhHqgaT8UkNWf9f8b40iIWaAHjeg-F7q4rvUn5LkWDEqJf8GcXj9LqLbL3BYqaxkfZsU9HPtaAudiVLzf_yj7RxazN4UejX4SFTx4H64uMP6JCqM1FyM1nsUOKb2_oEbluuy3U2vRirdEqkG6k6iqKp2e7t5cOCU29uKBYNCYCiymBnY1N4iFKlMdOcqyeq_K3j23utzf3qevkOhmlAQVZvQFhlbSQad5Ng-WLvIL3g8Ih61iGw" 

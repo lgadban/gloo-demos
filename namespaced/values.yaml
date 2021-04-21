@@ -1,0 +1,15 @@
+global:
+  glooRbac:
+    namespaced: true
+    nameSuffix: nspaced
+  image:
+    registry: soloio
+settings:
+  singleNamespace: true
+observability:
+  enabled: false
+prometheus:
+  enabled: false
+grafana:
+  defaultInstallationEnabled: false
+

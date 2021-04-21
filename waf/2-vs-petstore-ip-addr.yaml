@@ -1,0 +1,26 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: petstore
+  namespace: gloo-system
+spec:
+  virtualHost:
+    domains:
+    - '*'
+    options:
+      waf:
+        customInterventionMessage: 'ModSecurity intervention!'
+        ruleSets:
+        - ruleStr: |
+            # Turn rule engine on
+            SecRuleEngine On
+            SecRule REQUEST_HEADERS:X-Forwarded-For "@Contains 173.175.123.25" "phase:1,deny,status:403,id:107,msg:'block malicious user'"
+    routes:
+    - matchers:
+      - prefix: /
+      routeAction:
+        single:
+          upstream:
+            name: default-petstore-8080
+            namespace: gloo-system
+

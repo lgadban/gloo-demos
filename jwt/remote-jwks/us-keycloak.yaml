@@ -1,0 +1,11 @@
+apiVersion: gloo.solo.io/v1
+kind: Upstream
+metadata:
+  name: keycloak
+  namespace: gloo-system
+spec:
+  kube:
+    serviceName: keycloak
+    serviceNamespace: default
+    servicePort: 8080
+

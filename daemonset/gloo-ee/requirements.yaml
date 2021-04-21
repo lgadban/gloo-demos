@@ -1,0 +1,20 @@
+dependencies:
+- name: gloo
+  repository: file://../../../gloo/install/helm/gloo
+  version: 1.4.7
+- condition: prometheus.enabled
+  name: prometheus
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  tags:
+  - monitoring
+  version: 9.5.1
+- condition: grafana.defaultInstallationEnabled
+  name: grafana
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  tags:
+  - monitoring
+  version: 5.0.8
+- condition: devPortal.enabled
+  name: dev-portal
+  repository: https://storage.googleapis.com/dev-portal-helm
+  version: 0.1.11

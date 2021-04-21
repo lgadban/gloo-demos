@@ -1,0 +1,32 @@
+apiVersion: gateway.solo.io/v1
+kind: Gateway
+metadata:
+  creationTimestamp: "2020-06-09T17:46:01Z"
+  generation: 5
+  labels:
+    app: gloo
+  name: gateway-proxy
+  namespace: gloo-system
+  resourceVersion: "414184"
+  selfLink: /apis/gateway.solo.io/v1/namespaces/gloo-system/gateways/gateway-proxy
+  uid: 157bc3b9-aa79-11ea-8e42-42010a80025f
+spec:
+  bindAddress: '::'
+  bindPort: 8080
+  httpGateway: {}
+  options:
+    accessLoggingService:
+      accessLog:
+      - grpcService:
+          logName: example
+          staticClusterName: access_log_cluster
+  proxyNames:
+  - gateway-proxy
+  useProxyProto: false
+status:
+  reported_by: gateway
+  state: 1
+  subresource_statuses:
+    '*v1.Proxy.gloo-system.gateway-proxy':
+      reported_by: gloo
+      state: 1

@@ -1,0 +1,14 @@
+apiVersion: gateway.solo.io/v1
+kind: RouteTable
+metadata:
+  name: httpbin-routes
+  namespace: httpbin
+spec:
+  routes:
+    - matchers:
+       - prefix: /httpbin
+      routeAction:
+        single:
+          upstream:
+            name: httpbin-httpbin-8000
+            namespace: httpbin

@@ -1,0 +1,24 @@
+{{- if .Values.rateLimit.enabled }}
+apiVersion: gloo.solo.io/v1
+kind: Upstream
+metadata:
+  labels:
+    app: gloo
+    gloo: {{ .Values.rateLimit.service.name }}
+  name: {{ .Values.rateLimit.service.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  healthChecks:
+  - timeout: 5s
+    interval: 1m
+    unhealthyThreshold: 5
+    healthyThreshold: 5
+    grpcHealthCheck:
+      serviceName: ratelimit
+  kube:
+    serviceName: {{ .Values.rateLimit.service.name }}
+    serviceNamespace: {{ .Release.Namespace }}
+    servicePort:  {{ .Values.rateLimit.service.port }}
+    serviceSpec:
+      grpc: {}
+{{- end }}

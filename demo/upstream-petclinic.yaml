@@ -1,0 +1,11 @@
+apiVersion: gloo.solo.io/v1
+kind: Upstream
+metadata:
+  name: petclinic
+  namespace: gloo-system
+spec:
+  static:
+    hosts:
+    - addr: 34.66.249.113
+      port: 8080
+

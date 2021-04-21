@@ -1,0 +1,31 @@
+apiVersion: gloo.solo.io/v1
+kind: Upstream
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"petstore"},"name":"petstore","namespace":"default"},"spec":{"ports":[{"port":8080,"protocol":"TCP","targetPort":8080}],"selector":{"app":"petstore"},"type":"ClusterIP"}}
+  creationTimestamp: "2020-06-25T21:10:37Z"
+  generation: 16
+  labels:
+    app: petstore
+    discovered_by: kubernetesplugin
+  name: default-petstore-8080
+  namespace: gloo-system
+  resourceVersion: "415713"
+  selfLink: /apis/gloo.solo.io/v1/namespaces/gloo-system/upstreams/default-petstore-8080
+  uid: fec331b7-8f9a-4260-9218-3fffb146f71c
+spec:
+  discoveryMetadata: {}
+  healthChecks:
+  - healthyThreshold: 1
+    interval: 5s
+    tcpHealthCheck: {}
+    timeout: 5s
+    unhealthyThreshold: 1
+  kube:
+    selector:
+      app: petstore
+    serviceName: petstore
+    serviceNamespace: default
+    servicePort: 8080
+status: {}

@@ -1,0 +1,7 @@
+apiVersion: gateway.solo.io/v1
+kind: Gateway
+metadata:
+  name: gateway-proxy-ssl
+spec:
+  bindPort: 8443
+

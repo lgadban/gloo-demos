@@ -1,0 +1,31 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: petstore
+  namespace: gloo-system
+spec:
+  virtualHost:
+    domains:
+    - '*'
+    options:
+      transformations:
+        requestTransformation:
+          transformationTemplate:
+            extractors:
+              pathArg:
+                header: :path
+                regex: (.*arg1=([^&]*).*)
+                subgroup: 2
+            mergeExtractorsToBody: {}
+    routes:
+    - matchers:
+      - prefix: /
+      routeAction:
+        single:
+          destinationSpec:
+            aws:
+              logicalName: helloWorldLaw
+              responseTransformation: true
+          upstream:
+            name: aws
+            namespace: gloo-system

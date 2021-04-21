@@ -14,5 +14,5 @@ spec:
           serviceType: ClusterIP
       selector:
         dnsNames:
-        - '34.71.12.226.nip.io'
+        - '34.69.182.150.nip.io'
 

@@ -1,0 +1,20 @@
+{{- if .Values.global.extensions.extAuth.enabled }}
+{{- $extAuth := .Values.global.extensions.extAuth }}
+{{- if $extAuth.standaloneDeployment }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: gloo
+    gloo: {{ $extAuth.service.name }}
+  name: {{ $extAuth.service.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - name: grpc
+    port: {{ $extAuth.service.port }}
+    protocol: TCP
+  selector:
+    gloo: {{ $extAuth.service.name }}
+{{- end }}
+{{- end }} # enabled

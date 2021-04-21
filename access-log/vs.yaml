@@ -1,0 +1,42 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"gateway.solo.io/v1","kind":"VirtualService","metadata":{"annotations":{},"name":"petstore","namespace":"gloo-system"},"spec":{"virtualHost":{"domains":["*"],"routes":[{"matchers":[{"prefix":"/"}],"routeAction":{"single":{"upstream":{"name":"default-petstore-8080","namespace":"gloo-system"}}}}]}}}
+  creationTimestamp: "2020-06-08T19:02:26Z"
+  generation: 20
+  name: petstore
+  namespace: gloo-system
+  resourceVersion: "416041"
+  selfLink: /apis/gateway.solo.io/v1/namespaces/gloo-system/virtualservices/petstore
+  uid: 97f7b9b4-a9ba-11ea-a54e-42010a800271
+spec:
+  virtualHost:
+    domains:
+    - '*'
+    options:
+      transformations:
+        responseTransformation:
+          transformationTemplate:
+            dynamicMetadataValues:
+            - key: args_body
+              value:
+                text: '{{ args }}'
+    routes:
+    - matchers:
+      - prefix: /
+      options:
+        autoHostRewrite: true
+      routeAction:
+        single:
+          upstream:
+            name: postman-echo
+            namespace: gloo-system
+status:
+  reported_by: gateway
+  state: 1
+  subresource_statuses:
+    '*v1.Proxy.gloo-system.gateway-proxy':
+      reported_by: gloo
+      state: 1

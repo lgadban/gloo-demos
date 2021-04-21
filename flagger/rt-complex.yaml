@@ -1,0 +1,48 @@
+apiVersion: gateway.solo.io/v1
+kind: RouteTable
+metadata:
+  name: app-routes
+  namespace: default
+spec:
+  routes:
+  - matchers:
+    - regex: /app/.*/b
+    options:
+      transformations:
+        requestTransformation:
+          transformationTemplate:
+            extractors:
+              pathsuffix:
+                header: :path
+                regex: ^\/app(\/.*\/b)$
+                subgroup: 1
+            headers:
+              :path:
+                text: '{{ pathsuffix }}'
+            passthrough: {}
+    routeAction:
+      single:
+        upstream:
+          name: default-http-echo-b-5678
+          namespace: gloo-system
+  - matchers:
+    - regex: /app/.*/a
+    options:
+      transformations:
+        requestTransformation:
+          transformationTemplate:
+            extractors:
+              pathsuffix:
+                header: :path
+                regex: ^\/app(\/.*\/a)$
+                subgroup: 1
+            headers:
+              :path:
+                text: '{{ pathsuffix }}'
+            passthrough: {}
+    routeAction:
+      single:
+        upstream:
+          name: default-http-echo-a-5678
+          namespace: gloo-system
+

@@ -1,0 +1,254 @@
+{{- if .Values.gateway.updateValues -}}
+{{- include "gloo.updatevalues" . -}}
+{{- end -}}
+{{- if .Values.gateway.enabled }}
+{{- $global := .Values.global }}
+{{- $isUpgrade := .Values.gateway.upgrade }}
+{{- range $name, $spec := .Values.gatewayProxies }}
+{{- $image := $spec.podTemplate.image }}
+{{- if $global }}
+{{- $image = merge $spec.podTemplate.image $global.image }}
+{{- end }}
+{{- $statsConfig := coalesce $spec.stats $global.glooStats }}
+---
+apiVersion: apps/v1
+{{- if $spec.kind.deployment}}
+kind: Deployment
+{{- else }}
+kind: DaemonSet
+{{- end}}
+metadata:
+  labels:
+    app: gloo
+    gloo: gateway-proxy
+    gateway-proxy-id: {{ $name | kebabcase }}
+  name: {{ $name | kebabcase }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  {{- if $spec.kind.deployment}}
+  {{- if $spec.kind.deployment.replicas}}
+  replicas: {{ $spec.kind.deployment.replicas }}
+  {{- end}}
+  {{- end}}
+  selector:
+    matchLabels:
+      gloo: gateway-proxy
+      gateway-proxy-id: {{ $name | kebabcase }}
+  template:
+    metadata:
+      labels:
+        gloo: gateway-proxy
+        gateway-proxy-id: {{ $name | kebabcase }}
+        {{- if not $isUpgrade }}
+        gateway-proxy: live
+        {{- end }}
+{{ $annotationExist := false}}
+{{- if $spec.podTemplate.extraAnnotations }}
+{{ $annotationExist = true}}
+      annotations:
+      {{- range $key, $value := $spec.podTemplate.extraAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+      {{- end }}
+{{- end }}
+{{- if $statsConfig.enabled }}
+{{- if not $annotationExist }}
+{{- $annotationExist = true}}
+      annotations:
+{{- end}}
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8081"
+        prometheus.io/scrape: "true"
+{{- end}}
+{{- if $spec.readConfig }}
+{{- if not $annotationExist }}
+      annotations:
+{{- end}}
+        readconfig-stats: /stats
+        readconfig-ready: /ready
+        readconfig-config_dump: /config_dump
+        readconfig-port: "8082"
+{{- end}}
+    spec:
+
+{{- if $spec.podTemplate.runUnprivileged }}
+      securityContext:
+        fsGroup: {{ printf "%.0f" (float64 $spec.podTemplate.fsGroup) }}
+        {{- if not $spec.podTemplate.floatingUserId }}
+        runAsUser: {{ printf "%.0f" (float64 $spec.podTemplate.runAsUser) -}}
+        {{- end}}
+{{- end}}
+{{- if $spec.kind.deployment }}
+{{- if $spec.antiAffinity }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  gloo: gateway-proxy
+              topologyKey: kubernetes.io/hostname
+{{- end}}
+{{- end}}
+      serviceAccountName: gateway-proxy
+      {{- if $spec.extraInitContainersHelper }}
+      initContainers:
+      {{- include $spec.extraInitContainersHelper $ | nindent 6 }}
+      {{- end }}
+      containers:
+      - args:
+          - --disable-hot-restart
+          {{- with $spec.extraEnvoyArgs}}
+            {{- range . }}
+          - {{ . | quote }}
+            {{- end }}
+          {{- end}}
+        env:
+{{- if $spec.kind.deployment }}
+{{- if $spec.kind.deployment.customEnv }}
+{{ toYaml $spec.kind.deployment.customEnv | indent 8 }}
+{{- end }}
+{{- end }}
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        {{- if not $global.wasm.enabled }}
+        image: {{ template "gloo.image" $image }}
+        {{- else }}
+        image: "{{ $image.registry }}/gloo-envoy-wasm-wrapper:{{ $image.tag }}"
+        {{- end}}
+        imagePullPolicy: {{ $image.pullPolicy }}
+        name: {{ $name | kebabcase }}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          {{- if $spec.podTemplate.runUnprivileged }}
+          runAsNonRoot: true
+          {{- if not $spec.podTemplate.floatingUserId }}
+          runAsUser: {{ printf "%.0f" (float64 $spec.podTemplate.runAsUser) -}}
+          {{- end }}
+          {{- end}}
+          capabilities:
+            drop:
+            - ALL
+          {{- if not $spec.podTemplate.disableNetBind }}
+            add:
+            - NET_BIND_SERVICE
+          {{- end}}
+        ports:
+        - containerPort: {{ $spec.podTemplate.httpPort }}
+          name: http
+          protocol: TCP
+          {{- if $spec.kind.daemonSet }}
+          {{- if $spec.kind.daemonSet.hostPort}}
+          hostPort: {{ $spec.podTemplate.httpPort }}
+          {{- end}}
+          {{- end}}
+        - containerPort: {{ $spec.podTemplate.httpsPort }}
+          name: https
+          protocol: TCP
+          {{- if  $spec.kind.daemonSet }}
+          {{- if $spec.kind.daemonSet.hostPort}}
+          hostPort: {{ $spec.podTemplate.httpsPort }}
+          {{- end}}
+          {{- end}}
+{{- with $spec.podTemplate.extraPorts }}
+{{toYaml . | indent 8}}{{- end }}
+{{- if $spec.podTemplate.resources }}
+        resources:
+{{ toYaml $spec.podTemplate.resources | indent 10}}
+{{- end}}
+{{- if $spec.podTemplate.probes }}
+        readinessProbe:
+          exec:
+            command:
+            - wget
+            - -O
+            - /dev/null
+            - {{ $spec.loopBackAddress }}:19000/ready
+          initialDelaySeconds: 1
+          periodSeconds: 10
+          failureThreshold: 10
+        livenessProbe:
+          exec:
+            command:
+            - wget
+            - -O
+            - /dev/null
+            - {{ $spec.loopBackAddress }}:19000/server_info
+          initialDelaySeconds: 1
+          periodSeconds: 10
+          failureThreshold: 10
+{{- end}}
+        volumeMounts:
+        - mountPath: /etc/envoy
+          name: envoy-config
+{{- if $spec.extraProxyVolumeMountHelper }}
+{{- include $spec.extraProxyVolumeMountHelper $ | nindent 8 }}
+{{- end }}
+{{- if $global.glooMtls.enabled }}
+        - mountPath: /etc/envoy/ssl
+          name: gloo-mtls-certs
+          readOnly: true
+{{- end}} # $global.glooMtls.enabled
+{{- if $spec.extraContainersHelper }}
+        - mountPath: /usr/share/shared-data
+          name: shared-data
+{{- include $spec.extraContainersHelper $ | nindent 6 }}
+{{- end }} # $spec.extraContainersHelper
+{{- if $global.glooMtls.enabled }}
+      {{- $sdsImage := merge $global.glooMtls.sds.image $global.image }}
+      - name: sds
+        image: {{ template "gloo.image" $sdsImage }}
+        imagePullPolicy: {{ $sdsImage.pullPolicy }}
+        volumeMounts:
+        - mountPath: /etc/envoy/ssl
+          name: gloo-mtls-certs
+          readOnly: true
+{{- end}} # $global.glooMtls.enabled
+      {{- if $spec.kind.daemonSet }}
+      {{- if $spec.kind.daemonSet.hostPort}}
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      {{- end}}
+      {{- end}}
+      {{- if $spec.podTemplate.nodeName }}
+      nodeName: {{$spec.podTemplate.nodeName}}
+      {{- end }}
+      {{- if $spec.podTemplate.nodeSelector }}
+      nodeSelector:
+      {{- range $key, $value := $spec.podTemplate.nodeSelector }}
+        {{ $key }}: {{ $value | quote }}
+      {{- end }}
+      {{- end }}
+      {{- if $spec.podTemplate.tolerations }}
+      tolerations:
+{{ toYaml $spec.podTemplate.tolerations | indent 6}}
+      {{- end }}
+      {{- if $image.pullSecret }}
+      imagePullSecrets:
+        - name: {{ $image.pullSecret }}{{end}}
+      volumes:
+      - configMap:
+          name: {{ $name | kebabcase }}-envoy-config
+        name: envoy-config
+{{- if $global.glooMtls.enabled }}
+      - name: gloo-mtls-certs
+        secret:
+          defaultMode: 420
+          secretName: gloo-mtls-certs
+{{- end }}
+      {{- if $spec.extraContainersHelper }}
+      - name: shared-data
+        emptyDir: {}
+      {{- end }}
+      {{- if $spec.extraVolumeHelper }}
+      {{- include $spec.extraVolumeHelper $ | nindent 6 }}
+      {{- end }}
+{{- end }}
+{{- end }}

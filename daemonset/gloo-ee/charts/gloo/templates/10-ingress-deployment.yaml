@@ -1,0 +1,66 @@
+{{- if or (.Values.ingress.enabled) (.Values.settings.integrations.knative.enabled) }}
+{{- $image := .Values.ingress.deployment.image }}
+{{- if .Values.global  }}
+{{- $image = merge .Values.ingress.deployment.image .Values.global.image }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: gloo
+    gloo: ingress
+  name: ingress
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.ingress.deployment.replicas }}
+  selector:
+    matchLabels:
+      gloo: ingress
+  template:
+    metadata:
+      labels:
+        gloo: ingress
+    spec:
+      containers:
+      - image: {{template "gloo.image" $image}}
+        imagePullPolicy: {{ $image.pullPolicy }}
+        name: ingress
+{{- if .Values.ingress.deployment.resources }}
+        resources:
+{{ toYaml .Values.ingress.deployment.resources | indent 10}}
+{{- end}}
+        env:
+{{- if .Values.ingress.deployment.customEnv }}
+{{ toYaml .Values.ingress.deployment.customEnv | indent 8 }}
+{{- end }}
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+{{- if .Values.settings.integrations.knative.enabled }}
+        - name: "ENABLE_KNATIVE_INGRESS"
+          value: "true"
+{{- end }}
+{{- if .Values.settings.integrations.knative.version }}
+        - name: "KNATIVE_VERSION"
+          value: "{{.Values.settings.integrations.knative.version}}"
+{{- end }}
+
+{{- if not (.Values.ingress.enabled) }}
+        - name: "DISABLE_KUBE_INGRESS"
+          value: "true"
+{{- else }}
+
+  {{- if or .Values.ingress.requireIngressClass .Values.settings.integrations.knative.requireIngressClass }}
+        - name: "REQUIRE_INGRESS_CLASS"
+          value: "true"
+  {{- end }}
+
+  {{- if and .Values.ingress.customIngressClass }}
+        - name: "CUSTOM_INGRESS_CLASS"
+          value: "{{ .Values.ingress.customIngressClass }}"
+  {{- end }}
+{{- end }}
+
+
+{{- end }}

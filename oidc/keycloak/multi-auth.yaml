@@ -1,0 +1,27 @@
+apiVersion: enterprise.gloo.solo.io/v1
+kind: AuthConfig
+metadata:
+  name: keycloak-oidc
+  namespace: gloo-system
+spec:
+  configs:
+  - oauth:
+      issuer_url: http://34.67.186.21:8080/auth/realms/myrealm/
+      app_url: http://104.155.140.246/
+      callback_path: /callback
+      client_id: gloo
+      client_secret_ref:
+        name: gloo
+        namespace: gloo-system
+      scopes:
+      - email
+  - pluginAuth:
+      name: RequiredHeader
+      pluginFileName: RequiredHeader.so
+      exportedSymbolName: Plugin
+      config:
+        RequiredHeader: my-header
+        AllowedValues:
+        - foo
+        - bar
+

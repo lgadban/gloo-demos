@@ -1,0 +1,24 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"ClusterRoleBinding","metadata":{"annotations":{"kubernetes.io/description":"Allow all authenticated users to create privileged pods."},"labels":{"eks.amazonaws.com/component":"pod-security-policy","kubernetes.io/cluster-service":"true"},"name":"eks:podsecuritypolicy:authenticated"},"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"ClusterRole","name":"eks:podsecuritypolicy:privileged"},"subjects":[{"apiGroup":"rbac.authorization.k8s.io","kind":"Group","name":"system:authenticated"}]}
+    kubernetes.io/description: Allow all authenticated users to create privileged
+      pods.
+  creationTimestamp: "2020-05-21T23:09:04Z"
+  labels:
+    eks.amazonaws.com/component: pod-security-policy
+    kubernetes.io/cluster-service: "true"
+  name: eks:podsecuritypolicy:authenticated
+  resourceVersion: "190"
+  selfLink: /apis/rbac.authorization.k8s.io/v1/clusterrolebindings/eks%3Apodsecuritypolicy%3Aauthenticated
+  uid: b2a223f2-3072-4baa-92c5-e550982a0761
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: eks:podsecuritypolicy:privileged
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: system:authenticated

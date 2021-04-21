@@ -1,0 +1,60 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"gateway.solo.io/v1","kind":"VirtualService","metadata":{"annotations":{},"name":"petstore","namespace":"gloo-system"},"spec":{"virtualHost":{"domains":["*"],"options":{"jwt":{"providers":{"solo":{"audiences":["gloo"],"claimsToHeaders":[{"claim":"sub","header":"x-sub"}],"issuer":"solo.io","jwks":{"local":{"key":"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx7s5/6vgGPoW1PKkSMka\nu+Xr9JVZJNbqKXJ7RWKCqPxL5Vtj8II7lPi8d+x60f54oJTnyL/0zMVVsSq3msDh\nqzBSMpCUCR2q+pHjS/29rrFBlBHy1ty8kiMo+qXZn3SmSqGRo53bdWoiQ6ZWVZ2m\nkgYpdlNzNaSUe8AOQKnxBC3rBwx3+0g9RJvd4MM46YkN6Epr/NUKN///osqzfVfN\noG9YLp1pbatjpqvO1XlxX4qCNLScY5FOFrkTf95O3a3Y195o89D9XwULWT1baVuO\n/z7Ueug68b0t51mGXuEC572DmEbc8xHLnVfLM18QADvOnSzqY6vtIQcuGE/V/c7A\nTQIDAQAB\n-----END PUBLIC KEY-----\n"}}}}}},"routes":[{"directResponseAction":{"body":"HeaderSet","status":404},"matchers":[{"headers":[{"name":"x-sub","value":"user"}],"prefix":"/"}]},{"matchers":[{"prefix":"/"}],"routeAction":{"single":{"upstream":{"name":"default-petstore-8080","namespace":"gloo-system"}}}}]}}}
+  creationTimestamp: "2020-06-11T21:18:47Z"
+  generation: 11
+  name: petstore
+  namespace: gloo-system
+  resourceVersion: "106832"
+  selfLink: /apis/gateway.solo.io/v1/namespaces/gloo-system/virtualservices/petstore
+  uid: 2340de92-ac29-11ea-a15f-42010a800096
+spec:
+  virtualHost:
+    domains:
+    - '*'
+    options:
+      jwt:
+        providers:
+          solo:
+            audiences:
+            - account
+            claimsToHeaders:
+            - claim: sub
+              header: x-sub
+            issuer: http://34.71.199.231:8080/auth/realms/myrealm
+            jwks:
+              remote:
+                upstreamRef:
+                  name: keycloak
+                  namespace: gloo-system
+                url: http://34.71.199.231:8080/auth/realms/myrealm/protocol/openid-connect/certs
+            tokenSource:
+              headers:
+              - header: Authorization
+                prefix: 'Bearer '
+    routes:
+    - directResponseAction:
+        body: HeaderSet
+        status: 404
+      matchers:
+      - headers:
+        - name: x-sub
+          value: 57558887-b2f3-4d43-816c-381b371f2b82
+        prefix: /
+    - matchers:
+      - prefix: /
+      routeAction:
+        single:
+          upstream:
+            name: default-petstore-8080
+            namespace: gloo-system
+status:
+  reported_by: gateway
+  state: 1
+  subresource_statuses:
+    '*v1.Proxy.gloo-system.gateway-proxy':
+      reported_by: gloo
+      state: 1

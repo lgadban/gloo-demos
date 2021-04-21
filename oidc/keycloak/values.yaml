@@ -1,0 +1,17 @@
+observability:
+  enabled: false
+prometheus:
+  enabled: false
+grafana:
+  defaultInstallationEnabled: false
+global:
+  extensions:
+    extAuth:
+      plugins:
+        my-plugin:
+          image:
+            repository: ext-auth-plugins
+            registry: quay.io/solo-io
+            pullPolicy: IfNotPresent
+            tag: 1.4.13
+

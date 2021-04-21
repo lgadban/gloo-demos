@@ -1,0 +1,29 @@
+gloo:
+  gatewayProxies:
+    gatewayProxy:
+      kind:
+        deployment: false
+        daemonSet:
+          hostPort: true
+      podTemplate:
+        gracefulShutdown:
+          enabled: true
+          sleepTimeSeconds: 50
+        terminationGracePeriodSeconds: 60
+        probes: true
+        customReadinessProbe:
+          failureThreshold: 10
+          httpGet:
+            path: /gloo/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 2
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+      gatewaySettings:
+        customHttpGateway:
+          options:
+            healthCheck:
+              path: /gloo/health
+

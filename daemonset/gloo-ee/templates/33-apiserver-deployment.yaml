@@ -1,0 +1,119 @@
+{{- if .Values.apiServer.enable }}
+{{- $apiServerImage := .Values.apiServer.deployment.server.image }}
+{{- $uiImage := .Values.apiServer.deployment.ui.image }}
+{{- $envoyImage := .Values.apiServer.deployment.envoy.image }}
+{{- $statsConfig := coalesce .Values.apiServer.deployment.stats .Values.global.glooStats -}}
+{{- if .Values.global  }}
+{{- $apiServerImage = merge .Values.apiServer.deployment.server.image .Values.global.image }}
+{{- $uiImage = merge .Values.apiServer.deployment.ui.image .Values.global.image }}
+{{- $envoyImage = merge .Values.apiServer.deployment.envoy.image .Values.global.image }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-server
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: gloo
+    gloo: {{ .Values.apiServer.service.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gloo
+      gloo: {{ .Values.apiServer.service.name }}
+  template:
+    metadata:
+      labels:
+        app: gloo
+        gloo: {{ .Values.apiServer.service.name }}
+      {{- if $statsConfig.enabled }}
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9091"
+        prometheus.io/scrape: "true"
+      {{- end}}
+    spec:
+      serviceAccountName: {{ .Values.apiServer.service.name }}
+      securityContext:
+        runAsNonRoot: true
+        {{- if not .Values.apiServer.deployment.floatingUserId }}
+        runAsUser: {{ printf "%.0f" (float64 .Values.apiServer.deployment.runAsUser) -}}
+        {{- end }}
+      containers:
+        - name: apiserver-ui
+          image: {{template "gloo.image" $uiImage}}
+          imagePullPolicy: {{$uiImage.pullPolicy}}
+          volumeMounts:
+            - name: empty-cache
+              mountPath: /var/cache/nginx
+            - name: empty-run
+              mountPath: /var/run
+          ports:
+            - name: static
+              containerPort: {{.Values.apiServer.deployment.ui.staticPort}}
+              protocol: TCP
+          {{- if .Values.apiServer.deployment.ui.resources }}
+          resources:
+{{ toYaml .Values.apiServer.deployment.ui.resources | indent 12 }}
+          {{- end}}
+        - name: apiserver
+          image: {{template  "gloo.image" $apiServerImage}}
+          imagePullPolicy: {{$apiServerImage.pullPolicy}}
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: GRPC_PORT
+              value: '{{ .Values.apiServer.deployment.server.grpcPort }}'
+            {{- if $statsConfig.enabled }}
+            - name: START_STATS_SERVER
+              value: "true"
+            {{- end}} # stats
+            - name: NO_AUTH
+              value: "1"
+      {{- if .Values.apiServer.enterprise }}
+            - name: GLOO_LICENSE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: license
+                  key: license-key
+            {{- if .Values.devPortal.enabled }}
+            - name: DEV_PORTAL_ENABLED
+              value: "true"
+            - name: RBAC_NAMESPACED
+              value: {{ quote .Values.global.glooRbac.namespaced }}{{/* Needed to set the scope of the k8s manager */}}
+            {{- end}}
+          {{- if .Values.apiServer.deployment.server.resources }}
+          resources:
+{{ toYaml .Values.apiServer.deployment.server.resources | indent 12}}
+          {{- end}}
+      {{- end}} # .Values.apiServer.enterprise
+          ports:
+            - name: grpcport
+              containerPort: {{.Values.apiServer.deployment.server.grpcPort}}
+              protocol: TCP
+        - name: gloo-grpcserver-envoy
+          image: {{template "gloo.image" $envoyImage}}
+          imagePullPolicy: {{ $envoyImage.pullPolicy }}
+          {{- if .Values.apiServer.deployment.envoy.resources }}
+          resources:
+{{ toYaml .Values.apiServer.deployment.envoy.resources | indent 12}}
+          {{- end}}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            periodSeconds: 10
+            initialDelaySeconds: 5
+      volumes:
+        - name: empty-cache
+          emptyDir: {}
+        - name: empty-run
+          emptyDir: {}
+      {{- if $apiServerImage.pullSecret }}
+      imagePullSecrets:
+        - name: {{ $apiServerImage.pullSecret }}
+      {{- end }}
+{{- end }} # .Values.apiServer.enable

@@ -1,0 +1,68 @@
+{{- range $name, $spec := .Values.gatewayProxies }}
+{{- if $spec.gatewaySettings}}
+{{$gatewaySettings := $spec.gatewaySettings}}
+{{- if not $gatewaySettings.disableGeneratedGateways}}
+
+---
+apiVersion: gateway.solo.io/v1
+kind: Gateway
+metadata:
+  name: {{ $name | kebabcase }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: gloo
+spec:
+  {{- if $gatewaySettings.ipv4Only }}
+  bindAddress: "0.0.0.0"
+  {{- else }}
+  bindAddress: "::"
+  {{- end }}
+  bindPort: {{ $spec.podTemplate.httpPort }}
+{{- if $gatewaySettings.customHttpGateway}}
+  httpGateway:
+{{ toYaml $gatewaySettings.customHttpGateway | indent 4}}
+{{- else }}
+  httpGateway: {}
+{{- end }}
+{{- if $gatewaySettings.options }}
+  options:
+{{ toYaml $gatewaySettings.options | indent 4 }}
+{{- end }}
+  useProxyProto: {{ $gatewaySettings.useProxyProto }}
+  ssl: false
+  proxyNames:
+  - {{ $name | kebabcase }}
+
+---
+
+apiVersion: gateway.solo.io/v1
+kind: Gateway
+metadata:
+  name: {{ $name | kebabcase }}-ssl
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: gloo
+spec:
+  {{- if $gatewaySettings.ipv4Only }}
+  bindAddress: "0.0.0.0"
+  {{- else }}
+  bindAddress: "::"
+  {{- end }}
+  bindPort: {{ $spec.podTemplate.httpsPort }}
+{{- if $gatewaySettings.customHttpsGateway}}
+  httpGateway:
+{{ toYaml $gatewaySettings.customHttpsGateway | indent 6}}
+{{- else }}
+  httpGateway: {}
+{{- end }}
+{{- if $gatewaySettings.options }}
+  options:
+{{ toYaml $gatewaySettings.options | indent 4 }}
+{{- end }}
+  useProxyProto: {{ $gatewaySettings.useProxyProto }}
+  ssl: true
+  proxyNames:
+  - {{ $name | kebabcase }}
+{{- end }}
+{{- end }}
+{{- end }}

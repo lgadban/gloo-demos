@@ -1,0 +1,8 @@
+gloo:
+  gatewayProxies:
+    gatewayProxy:
+      podTemplate:
+        runAsUser: 10101
+        disableNetBind: true
+        runUnprivileged: true
+

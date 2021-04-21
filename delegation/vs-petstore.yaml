@@ -1,0 +1,21 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: petstore
+  namespace: gloo-system
+spec:
+  virtualHost:
+    domains:
+    - '*'
+    routes:
+    - inheritableMatchers: true
+      matchers:
+      - prefix: /
+        headers:
+        - name: x-foo
+          value: bar
+      delegateAction:
+        selector:
+          namespaces:
+          - default
+

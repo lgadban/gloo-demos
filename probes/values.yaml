@@ -1,0 +1,6 @@
+gloo:
+  gatewayProxies:
+    gatewayProxy:
+      podTemplate:
+        probes: true
+

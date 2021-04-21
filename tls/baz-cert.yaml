@@ -1,0 +1,10 @@
+apiVersion: cert-manager.io/v1beta1
+kind: Certificate
+metadata:
+  name: selfsigned-cert
+spec:
+  dnsNames:
+    - baz.example.com
+  secretName: baz-cert-tls
+  issuerRef:
+    name: test-selfsigned

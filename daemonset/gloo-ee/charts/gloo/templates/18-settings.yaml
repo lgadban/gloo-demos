@@ -1,0 +1,78 @@
+{{ if .Values.settings.create }}
+
+apiVersion: gloo.solo.io/v1
+kind: Settings
+metadata:
+  labels:
+    app: gloo
+  name: default
+  namespace: {{ .Release.Namespace }}
+spec:
+  gloo:
+{{- if .Values.global.glooMtls.enabled }}
+    xdsBindAddr: "127.0.0.1:9999"
+{{- else }}
+    xdsBindAddr: "0.0.0.0:{{ .Values.gloo.deployment.xdsPort }}"
+{{- end }}
+{{- if .Values.settings.invalidConfigPolicy }}
+    invalidConfigPolicy:
+{{ toYaml .Values.settings.invalidConfigPolicy | indent 6}}
+{{- end }}
+    disableKubernetesDestinations: {{ .Values.settings.disableKubernetesDestinations | default false }}
+    disableProxyGarbageCollection: {{ .Values.settings.disableProxyGarbageCollection | default false }}
+
+{{- if .Values.settings.writeNamespace }}
+  discoveryNamespace: {{ .Values.settings.writeNamespace }}
+{{- else }}
+  discoveryNamespace: {{ .Release.Namespace }}
+{{- end }}
+  kubernetesArtifactSource: {}
+  kubernetesConfigSource: {}
+  kubernetesSecretSource: {}
+  refreshRate: 60s
+{{- if .Values.settings.linkerd }}
+  linkerd: true
+{{- end }}
+{{- if .Values.settings.integrations.knative.enabled }}
+  knative:
+{{- if (semverCompare "< 0.8.0" .Values.settings.integrations.knative.version ) }}
+    clusterIngressProxyAddress: "clusteringress-proxy.{{ .Release.Namespace }}.svc.{{ $.Values.k8s.clusterName}}"
+{{- else }}
+    knativeExternalProxyAddress: "knative-external-proxy.{{ .Release.Namespace }}.svc.{{ $.Values.k8s.clusterName}}"
+    knativeInternalProxyAddress: "knative-internal-proxy.{{ .Release.Namespace }}.svc.{{ $.Values.k8s.clusterName}}"
+{{- end }}
+{{- end }}
+
+  gateway:
+    readGatewaysFromAllNamespaces: {{ .Values.gateway.readGatewaysFromAllNamespaces }}
+{{- if .Values.gateway.validation.enabled }}
+    validation:
+      proxyValidationServerAddr: gloo:{{ .Values.gloo.deployment.validationPort }}
+{{- /* need to do this weird if/else because Helm cannot differentiate between 'false' and 'unset' */}}
+      alwaysAccept: {{ .Values.gateway.validation.alwaysAcceptResources }}
+      allowWarnings: {{ .Values.gateway.validation.allowWarnings }}
+{{- end }}
+
+{{- if ne .Values.discovery.fdsMode "" }}
+  discovery:
+    fdsMode: {{.Values.discovery.fdsMode}}
+{{- end }}
+
+{{- if .Values.settings.extensions }}
+  extensions:
+{{- toYaml .Values.settings.extensions | nindent 4 }}
+{{- end }}
+
+{{- if .Values.settings.singleNamespace }}
+  watchNamespaces:
+  - {{ .Release.Namespace }}
+{{- else }}
+{{- with .Values.settings.watchNamespaces }}
+  watchNamespaces:
+  {{- range . }}
+  - {{ . }}
+  {{- end }}
+{{- end }}
+{{- end }}
+
+{{- end }}

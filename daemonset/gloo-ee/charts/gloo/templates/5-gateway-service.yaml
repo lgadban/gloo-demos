@@ -1,0 +1,20 @@
+{{- if and .Values.gateway.enabled .Values.gateway.validation.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    discovery.solo.io/function_discovery: disabled
+    app: gloo
+    gloo: gateway
+  name: gateway
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - name: https
+    port: 443
+    protocol: TCP
+    # this should map to projects/gateway/pkg/defaults.ValidationWebhookBindPort
+    targetPort: 8443
+  selector:
+    gloo: gateway
+{{- end}}

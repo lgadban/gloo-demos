@@ -1,0 +1,6 @@
+resources:
+- base.yaml
+patchesStrategicMerge:
+- service-patch.yaml
+- gateway-patch.yaml
+

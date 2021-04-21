@@ -1,0 +1,12 @@
+devPortal:
+  image:
+    pullPolicy: Always
+    registry: quay.io/solo-io
+    repository: dev-portal
+    tag: 0.1.11
+  ports:
+    h2c: 8080
+  resources:
+    requests:
+      cpu: 125m
+      memory: 256Mi

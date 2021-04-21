@@ -1,0 +1,11 @@
+apiVersion: enterprise.gloo.solo.io/v1
+kind: AuthConfig
+metadata:
+  name: apikey-auth
+  namespace: gloo-system
+spec:
+  configs:
+  - api_key_auth:
+      label_selector:
+        team: infrastructure
+      name: bad

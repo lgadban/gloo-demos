@@ -1,0 +1,96 @@
+---
+
+# Deployment manifest for dev-portal
+{{- $devPortal := $.Values.devPortal}}
+{{- $devPortalImage := $devPortal.image }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dev-portal
+  name: dev-portal
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: dev-portal
+  template:
+    metadata:
+      labels:
+        app: dev-portal
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9091"
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: dev-portal
+      volumes:
+      - emptyDir: {}
+        name: static-assets
+      containers:
+      - image: {{ $devPortalImage.registry }}/{{ $devPortalImage.repository }}:{{ $devPortalImage.tag }}
+        args:
+        - start
+        - --verbose
+        - --license-secret-namespace={{.Release.Namespace}}
+        volumeMounts:
+        - mountPath: /static
+          name: static-assets
+        imagePullPolicy: {{ $devPortalImage.pullPolicy }}
+        name: dev-portal
+{{- if $devPortal.resources }}
+        resources:
+{{ toYaml $devPortal.resources | indent 10}}
+{{- else}}
+        resources:
+          requests:
+            cpu: 500m
+            memory: 256Mi
+{{- end}}
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+      {{- if $devPortalImage.pullSecret }}
+      imagePullSecrets:
+        - name: {{ $devPortalImage.pullSecret }}
+      {{- end}}
+
+
+---
+
+# Service account for dev-portal
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: dev-portal
+  name: dev-portal
+  namespace: {{ $.Release.Namespace }}
+
+
+
+---
+# Service for dev-portal
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: dev-portal
+  name: dev-portal
+  namespace: {{ $.Release.Namespace }}
+spec:
+  selector:
+    app: dev-portal
+  type: ClusterIP
+  ports:
+  - name: h2c
+    port: {{ $devPortal.ports.h2c }}
+
+
+

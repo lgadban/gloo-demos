@@ -1,0 +1,18 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: petclinic
+  namespace: gloo-system
+spec:
+  virtualHost:
+    domains:
+    - 'petclinic.35-188-14-48.nip.io'
+    routes:
+    - matchers:
+      - prefix: /
+      routeAction:
+        single:
+          upstream:
+            name: petclinic
+            namespace: gloo-system
+

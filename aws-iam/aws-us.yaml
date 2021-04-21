@@ -1,0 +1,17 @@
+apiVersion: gloo.solo.io/v1
+kind: Upstream
+metadata:
+  name: aws
+  namespace: gloo-system
+spec:
+  aws:
+#    lambdaFunctions:
+#    - lambdaFunctionName: hello-world-law
+#      logicalName: hello-world-law
+#      qualifier: "$LATEST"
+    secretRef:
+      name: aws-creds
+      namespace: gloo-system
+    region: us-west-2
+    roleArn: arn:aws:iam::410461945957:role/aws-iam-app-role
+

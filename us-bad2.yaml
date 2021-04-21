@@ -1,0 +1,11 @@
+apiVersion: gloo.solo.io/v1
+kind: Upstream
+metadata:
+  name: bad-upstream4
+  namespace: gloo-system
+spec:
+  kube:
+    serviceName: bad-petstore4
+    serviceNamespace: default
+    servicePort: 8080
+

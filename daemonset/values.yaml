@@ -1,0 +1,7 @@
+gloo:
+  gatewayProxies:
+    gatewayProxy:
+      kind:
+        deployment: false
+        daemonSet:
+          hostPort: true

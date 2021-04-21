@@ -1,0 +1,27 @@
+apiVersion: v1
+items:
+- apiVersion: enterprise.gloo.solo.io/v1
+  kind: AuthConfig
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"enterprise.gloo.solo.io/v1","kind":"AuthConfig","metadata":{"annotations":{},"name":"oauth-cc","namespace":"gloo-system"},"spec":{"configs":[{"oauthCc":{"auth_url":"foo.com"}}]}}
+    creationTimestamp: "2020-05-07T20:38:24Z"
+    generation: 3
+    name: oauth-cc
+    namespace: gloo-system
+    resourceVersion: "22512962"
+    selfLink: /apis/enterprise.gloo.solo.io/v1/namespaces/gloo-system/authconfigs/oauth-cc
+    uid: b277ea9f-90a2-11ea-b44f-42010a8001b2
+  spec:
+    configs:
+    - oauthCc:
+        authUrl: foo.com
+  status:
+    reason: "1 error occurred:\n\t* Unknown Auth Config type for {oauth-cc gloo-system}\n\n"
+    reported_by: gloo
+    state: 2
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

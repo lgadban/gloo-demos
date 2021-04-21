@@ -1,0 +1,24 @@
+apiVersion: ratelimit.solo.io/v1alpha1
+kind: RateLimitConfig
+metadata:
+  name: rate-limit
+  namespace: gloo-system
+spec:
+  raw:
+    descriptors:
+    - key: service
+      descriptors:
+      - key: tenant
+        rateLimit:
+          requestsPerUnit: 4
+          unit: MINUTE
+    rateLimits:
+    - actions:
+      - requestHeaders:
+          descriptorKey: service
+          headerName: x-service-id
+      - requestHeaders:
+          descriptorKey: tenant
+          headerName: x-tenant-id
+
+

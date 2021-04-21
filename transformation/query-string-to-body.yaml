@@ -1,0 +1,29 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: headers-to-body
+  namespace: gloo-system
+spec:
+  virtualHost:
+    domains:
+    - '*'
+    options:
+      transformations:
+        requestTransformation:
+          transformationTemplate:
+            extractors:
+              pathArg:
+                header: :path
+                regex: (.*arg1=([^&]*).*)
+                subgroup: 2
+            mergeExtractorsToBody: {}
+    routes:
+    - matchers:
+      - prefix: /
+      options:
+        autoHostRewrite: true
+      routeAction:
+        single:
+          upstream:
+            name: postman-echo
+            namespace: gloo-system

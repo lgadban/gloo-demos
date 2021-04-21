@@ -1,0 +1,22 @@
+apiVersion: enterprise.gloo.solo.io/v1
+kind: AuthConfig
+metadata:
+  name: keycloak-oidc
+  namespace: gloo-system
+spec:
+  configs:
+  - oauth2:
+      oidcAuthorizationCode:
+        app_url: http://a7b08813cc3de43da9974da3d1d47d6c-1145450627.us-west-1.elb.amazonaws.com
+        callback_path: /callback
+        client_id: gloo
+        client_secret_ref:
+          name: gloo
+          namespace: gloo-system
+        issuer_url: http://a0f388daf08f64e7c875fb3ada2f1d57-125711233.us-west-1.elb.amazonaws.com:8080/auth/realms/myrealm
+        session:
+          cookieOptions:
+            notSecure: true
+        scopes:
+        - email
+

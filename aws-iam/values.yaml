@@ -1,0 +1,15 @@
+settings:
+  aws:
+    enableServiceAccountCredentials: true
+gloo:
+  settings:
+    aws:
+      enableServiceAccountCredentials: true
+  gateway:
+    proxyServiceAccount:
+      extraAnnotations:
+        eks.amazonaws.com/role-arn: "arn:aws:iam::410461945957:role/eksctl-unique-badger-1593546436-n-NodeInstanceRole-IKI1WX0BTKJS"
+  discovery:
+    serviceAccount:
+      extraAnnotations:
+        eks.amazonaws.com/role-arn: "arn:aws:iam::410461945957:role/aws-iam-app-role"
