@@ -1,0 +1,50 @@
+apiVersion: gloo.solo.io/v1
+kind: Upstream
+metadata:
+  name: internal-podinfo
+  namespace: internal-app
+spec:
+  kube:
+    serviceName: podinfo
+    serviceNamespace: internal-app
+    servicePort: 9898
+---
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: internal-podinfo
+  namespace: internal-app
+  labels:
+    env: internal
+spec:
+  virtualHost:
+    domains:
+    - '*'
+    options:
+      extauth:
+        configRef:
+          name: basic-auth
+          namespace: internal-app
+    routes:
+    - matchers:
+      - prefix: /
+      routeAction:
+        single:
+          upstream:
+            name: internal-podinfo
+            namespace: internal-app
+---
+apiVersion: enterprise.gloo.solo.io/v1
+kind: AuthConfig
+metadata:
+  name: basic-auth
+  namespace: internal-app
+spec:
+  configs:
+  - basicAuth:
+      apr:
+        users:
+          user:
+            salt: "TYiryv0/"
+            hashedPassword: "8BvzLUO9IfGPGGsPnAgSu1"
+

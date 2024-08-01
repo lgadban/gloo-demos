@@ -1,0 +1,59 @@
+apiVersion: gloo.solo.io/v1
+kind: Upstream
+metadata:
+  name: external-podinfo
+  namespace: external-app
+spec:
+  kube:
+    serviceName: podinfo
+    serviceNamespace: external-app
+    servicePort: 9898
+---
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: external-podinfo
+  namespace: external-app
+  labels:
+    env: external
+spec:
+  virtualHost:
+    domains:
+    - '*'
+    options:
+      extauth:
+        configRef:
+          name: apikey
+          namespace: external-app
+    routes:
+    - matchers:
+      - prefix: /
+      routeAction:
+        single:
+          upstream:
+            name: external-podinfo
+            namespace: external-app
+---
+apiVersion: enterprise.gloo.solo.io/v1
+kind: AuthConfig
+metadata:
+  name: apikey
+  namespace: external-app
+spec:
+  configs:
+  - apiKeyAuth:
+      headerName: api-key
+      labelSelector:
+        team: infrastructure
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    team: infrastructure
+  name: infra-apikey
+  namespace: gloo-system
+data:
+  api-key: TjJZd01ESXhaVEV0TkdVek5TMWpOemd6TFRSa1lqQXRZakUyWXpSa1pHVm1OamN5
+type: extauth.solo.io/apikey
+

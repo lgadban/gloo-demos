@@ -1,0 +1,11 @@
+apiVersion: gloo.solo.io/v1
+kind: Upstream
+metadata:
+  name: gcp-petstore
+  namespace: gloo-system
+spec:
+  static:
+    hosts:
+    - addr: 35.241.55.123
+      port: 80
+

@@ -1,0 +1,17 @@
+apiVersion: gateway.solo.io/v1
+kind: RouteTable
+metadata:
+  name: petstore-routes-foo
+  namespace: gloo-system
+  labels:
+    routes: petstore
+spec:
+  routes:
+  - matchers:
+    - prefix: /foo
+    routeAction:
+      single:
+        upstream:
+          name: default-petstore-8080
+          namespace: gloo-system
+

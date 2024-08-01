@@ -1,0 +1,46 @@
+global:
+  extensions:
+    dataplanePerProxy: true
+gloo:
+  gatewayProxies:
+    gatewayProxy:
+      kind:
+        deployment:
+          replicas: 2
+      podTemplate:
+        nodeSelector:
+         env: external 
+      gatewaySettings:
+        customHttpGateway:
+          virtualServiceSelector:
+            env: external
+          options:
+            extauth:
+              extauthzServerRef:
+                name: extauth-gateway-proxy
+                namespace: gloo-system
+            ratelimitServer:
+              ratelimitServerRef:
+                name: rate-limit-gateway-proxy
+                namespace: gloo-system
+    internalProxy:
+      kind:
+        deployment:
+          replicas: 2
+      podTemplate:
+        nodeSelector:
+         env: internal 
+      gatewaySettings:
+        customHttpGateway:
+          virtualServiceSelector:
+            env: internal
+          options:
+            extauth:
+              extauthzServerRef:
+                name: extauth-internal-proxy
+                namespace: gloo-system
+            ratelimitServer:
+              ratelimitServerRef:
+                name: rate-limit-internal-proxy
+                namespace: gloo-system
+

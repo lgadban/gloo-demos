@@ -1,0 +1,32 @@
+global:
+  extensions:
+    dataplanePerProxy: true
+gloo:
+  gatewayProxies:
+    gatewayProxy:
+      gatewaySettings:
+        customHttpGateway:
+          options:
+            extauth:
+              extauthzServerRef:
+                name: extauth-gateway-proxy
+                namespace: gloo-system
+            ratelimitServer:
+              ratelimitServerRef:
+                name: rate-limit-gateway-proxy
+                namespace: gloo-system
+    internalProxy:
+      gatewaySettings:
+        customHttpGateway:
+          options:
+            extauth:
+              extauthzServerRef:
+                name: extauth-internal-proxy
+                namespace: gloo-system
+            ratelimitServer:
+              ratelimitServerRef:
+                name: rate-limit-internal-proxy
+                namespace: gloo-system
+          virtualServiceSelector:
+            gateway-type: internal
+
