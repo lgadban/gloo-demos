@@ -1,7 +1,0 @@
-gloo:
-  gatewayProxies:
-    gatewayProxy:
-      service:
-        extraAnnotations:
-          service.beta.kubernetes.io/aws-load-balancer-type: nlb
-
